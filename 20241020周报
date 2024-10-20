@@ -1,0 +1,51 @@
+本周主要学习了pytorch中两个库的使用
+1.Tensboard
+主要代码
+image_path="dataset/train/ants/0013035.jpg"#加载图片路径
+img=Image.open(image_path)#打开图片
+img_array=np.array(img)#转换类型到num
+writer.add_image("test",img_array,1,dataformats='HWC')载入到网页
+最后使用终端显示命令tensorboard --logdir=logs --port=6007在本地网页显示载入的图片
+2.Tramsforms
+（1）Totensor【PIL格式转换为Tensor格式】
+代码
+#Totensor使用
+Writer=SummaryWriter(log_dir='./logs')
+Img=Image.open("train/ants/5650366_e22b7e1065.jpg")
+trans_tensor=transforms.ToTensor()#转换到tensor格式
+Img_tensor=trans_tensor(Img)
+print(type(Img_tensor))#转换为tensor格式
+Writer.add_image("ToTensor",Img_tensor)
+（2）Normalize归一化
+原理：output[channel] = (input[channel] - mean[channel]) / std[channel]
+例如：像素值【0，1】 平均值mean为0.5 标准差std为0.5
+（0-0.5）/0.5
+结果【-1，1】
+（3）resize使用
+代码
+tans_resize=transforms.Resize((512,512))
+#img PIL->resize->img_resize PIL
+Img_resize=tans_resize(Img)
+#img_resize->tosensor->img_resize totensor
+Img_resize=trans_tensor(Img_resize)
+Writer.add_image("Img_resize",Img_resize,0)
+这里的 size 可以是一个整数，表示将图像的较短边缩放到指定长度，同时保持长宽比。例如，transforms.Resize(256) 将图像的较短边调整为256像素，而较长边将按比例缩放。
+size 也可以是 [width, height]，表示将图像的宽度和高度调整为指定的尺寸。例如，transforms.Resize([256, 256]) 将图像的宽度和高度分别调整为256像素。
+（4）compose使用
+代码
+trans_resize_2=transforms.Resize(512)
+#PIL IMG->Tosensor
+trans_compose=transforms.Compose([trans_resize_2,trans_tensor])
+Img_compose=trans_compose(Img)
+Writer.add_image("trans_resize_2",Img_compose,1)
+（5）randomcrop随机裁剪
+代码
+trans_random=transforms.RandomCrop((100,200))
+trans_compose_2=transforms.Compose([trans_random,trans_tensor])
+for i in range(10):
+    Img_crop=trans_compose_2(Img)
+    Writer.add_image("Img_cropHW",Img_crop,i)
+
+
+
+    本周总结：初步学习了一些transform中的函数使用以及如何合理使用tensoboard这个工具，在后面其它函数功能的学习多关注输入和输出类型多看官网文档关注方法需要什么参数如果不知道返回值可以打断点 查看类型或者Print(type())
